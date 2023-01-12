@@ -9,10 +9,15 @@ verse_install = function(
     ...
     ) {
   
-  stopifnot("Active verse project not found" = exists("verse"))
+  # check verse is active
+  if (!exists("verse")) stop("Please activate verse")
+  
+  # check .libPaths are correct
+  if (!identical(.libPaths()[1], verse$lib_path)) .libPaths(c(verse$lib_path, .libPaths()))
   
   # confirm path set ok
   if (!identical(.libPaths()[1], verse$project_lib)) {
+    
     actual_lib_1 = .libPaths()[1]
     expected_lib_1 = verse$project_lib
     
@@ -35,37 +40,12 @@ verse_install = function(
     upgrade = upgrade
   )
   
-  # add trycatch to give informative error if version not found, maybe check
-  # that version is as requested too (if requested)
-  inst_ver = paste0(unlist(packageVersion(package)),collapse = ".")
+  write_lock()
   
-  if (lock_version) {
-    lockver = inst_ver
-  } else {
-    lockver = glue::glue(">= ", inst_ver)
-  }
-  
-  new_lock_entry = setNames(
-    c(package, lockver, dependencies, upgrade),
-    c("package", "version", "dependencies", "upgrade")
-  )
-  
-  lock_state = read_lock()
-  
-  in_lock = which(sapply(lock_state, function(x) x[["package"]]) == "odns")
-  
-  if (length(in_lock) > 0) {
-    lock_state[[in_lock]] = NULL
-  }
-  
-  lock_state[[length(lock_state) + 1]] = new_lock_entry
-  
-  write_lock(to_lock = lock_state)
-  
-  # verse_install_dep prevents recursion, will only go to depth 1.
-  # within verse_install_dep, verse_dep == FALSE
-  if (verse_dep) verse_install_dep(verse$project_lib)
-  
+  # When calling verse_install_dep, recursion is prevented, confirmed dependency
+  # installation will only go to depth 1. Additional dependencies are installed
+  # but not added to the lockfile.
+  if (verse_dep) verse_install_dep(verse$project_lib) else write_lock()
   
   return(invisible())
 }

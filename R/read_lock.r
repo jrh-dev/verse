@@ -1,22 +1,30 @@
-
+#' Read and parse a `verse.lock` file.
+#' 
+#'  @param ... Unused arguments, for future development.
+#'  
+#'  @return Invisible, the function is called for it's side effects.
+#'  @export
 read_lock = function(...) {
   
+  # check verse is active
   if (!exists("verse")) stop("Please activate verse")
   
+  # check .libPaths are correct
   if (!identical(.libPaths()[1], verse$lib_path)) .libPaths(c(verse$lib_path, .libPaths()))
   
-  rw =  readLines("verse.lock", warn = FALSE)
-  rw = rw[rw != ""]
-  pc = 0
-  p = vector("list", sum(grepl("[[package]]", rw)))
+  lock =  readLines("verse.lock", warn = FALSE)
+  lock = lock[lock != ""]
+  iter = 0
+  pac = vector("list", sum(grepl("[[package]]", lock)))
   
-  for (line in rw) {
+  for (line in lock) {
     if (line == "[[package]]") {
-      pc = pc + 1
+      iter = iter + 1
     } else {
       x = strsplit(line, ":")
-      p[[pc]][x[[1]][1]] = x[[1]][2]
+      pac[[iter]][x[[1]][1]] = x[[1]][2]
     }
   }
-  return(p)
+  
+  return(pac)
 }
