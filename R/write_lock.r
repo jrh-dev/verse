@@ -16,10 +16,10 @@ write_lock = function(...) {
   if (!identical(.libPaths()[1], .verse$lib_path)) .libPaths(c(.verse$lib_path, .libPaths()))
   
   # back up lock file
-  verse$previous_lock = read_lock()
+  .verse$previous_lock = ._read_lock()
   
   # identify packages installed in the project library and dependencies
-  pac_in_lib = as.data.frame(installed.packages(lib.loc = .verse$project_lib))
+  pac_in_lib = as.data.frame(utils::installed.packages(lib.loc = .verse$project_lib))
   
   if (nrow(pac_in_lib) > 0) {
     

@@ -23,7 +23,7 @@
 #' @param verse_dep logical, default `TRUE` value checks the dependencies of the
 #'  installed package are installed in the project library. Base packages are
 #'  never included in the project library.
-#' @param ... Unused arguments, for future development.
+#' @param ... Arguments to be passed on to [remotes::install_version()]
 #'  
 #' @return Invisible, the function is called for it's side effects.
 #' @export
@@ -94,14 +94,14 @@ verse_install = function(
   if (!identical(.libPaths()[1], .verse$lib_path)) .libPaths(c(.verse$lib_path, .libPaths()))
   
   # identify packages installed in the project library and dependencies
-  pac_in_lib = as.data.frame(installed.packages(lib.loc = .verse$project_lib))
+  pac_in_lib = as.data.frame(utils::installed.packages(lib.loc = .verse$project_lib))
   deps = unique(unname(unlist(tools::package_dependencies(pac_in_lib$Package))))
   
   # identify any dependencies not installed
   req_deps = setdiff(deps, pac_in_lib$Package)
   
   # remove base packages from consideration
-  req_deps = req_deps[!req_deps %in% rownames(installed.packages(priority="base"))]
+  req_deps = req_deps[!req_deps %in% rownames(utils::installed.packages(priority="base"))]
   
   # install
   if (length(req_deps) > 0) {

@@ -25,7 +25,7 @@ verify_lock = function(...) {
   lock = ._read_lock()
   
   # check verse.lock and ensure all packages in project lib
-  ins_pac = as.data.frame(installed.packages(lib.loc = .verse$verse_lib))$Package
+  ins_pac = as.data.frame(utils::installed.packages(lib.loc = .verse$verse_lib))$Package
   
   # check presence and version of all packages in lock file
   for (pac in lock) {
@@ -37,14 +37,14 @@ verify_lock = function(...) {
     if (length(tar_ver$version) > 1) {
       tar_met_crit_2 = switch(
         tar_ver$version[1],
-        "<" = (packageVersion(tar_pac, lib.loc = lib_path) < tar_ver$version[2]),
-        "<=" = (packageVersion(tar_pac, lib.loc = lib_path) <= tar_ver$version[2]),
-        ">=" = (packageVersion(tar_pac, lib.loc = lib_path) >= tar_ver$version[2]),
-        ">" = (packageVersion(tar_pac, lib.loc = lib_path) > tar_ver$version[2]),
+        "<" = (utils::packageVersion(tar_pac, lib.loc = lib_path) < tar_ver$version[2]),
+        "<=" = (utils::packageVersion(tar_pac, lib.loc = lib_path) <= tar_ver$version[2]),
+        ">=" = (utils::packageVersion(tar_pac, lib.loc = lib_path) >= tar_ver$version[2]),
+        ">" = (utils::packageVersion(tar_pac, lib.loc = lib_path) > tar_ver$version[2]),
         FALSE
       )
     } else {
-      tar_met_crit_2 = (packageVersion(tar_pac, lib.loc = verse$lib_path) == tar_ver$version[1])
+      tar_met_crit_2 = (utils::packageVersion(tar_pac, lib.loc = verse$lib_path) == tar_ver$version[1])
     }
     
     # if lock file conditions aren't fulfilled; install

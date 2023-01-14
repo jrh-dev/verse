@@ -15,7 +15,7 @@ verse_install(pac_name, vers = NULL, verse_dep = TRUE, ...)
 installed package are installed in the project library. Base packages are
 never included in the project library.}
 
-\item{...}{Unused arguments, for future development.}
+\item{...}{Arguments to be passed on to \code{\link[remotes:install_version]{remotes::install_version()}}}
 }
 \value{
 Invisible, the function is called for it's side effects.
