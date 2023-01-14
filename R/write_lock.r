@@ -10,16 +10,16 @@
 write_lock = function(...) {
   
   # check verse is active
-  if (!exists("verse")) stop("Please activate verse")
+  if (!exists(".verse")) stop("Please activate verse")
   
   # check .libPaths are correct
-  if (!identical(.libPaths()[1], verse$lib_path)) .libPaths(c(verse$lib_path, .libPaths()))
+  if (!identical(.libPaths()[1], .verse$lib_path)) .libPaths(c(.verse$lib_path, .libPaths()))
   
   # back up lock file
   verse$previous_lock = read_lock()
   
   # identify packages installed in the project library and dependencies
-  pac_in_lib = as.data.frame(installed.packages(lib.loc = verse$project_lib))
+  pac_in_lib = as.data.frame(installed.packages(lib.loc = .verse$project_lib))
   
   if (nrow(pac_in_lib) > 0) {
     

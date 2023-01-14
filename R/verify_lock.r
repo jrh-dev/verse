@@ -5,27 +5,27 @@
 #'  
 #' @details Packages within the private library are checked for compliance with 
 #'  the lock file. Missing packages are installed and packages whose
-#'  installations fail to meet the lock file specification are reinstalled.
+#'  installations fail to meet the lock file specification are re-installed.
 #'  
 #'  The function does NOT remove packages that are installed in the project
 #'  library and not contained within the lock file.
 #'  
-#' @param lock R list object containing the parsed contents of the lock file.
-#'  The `read_lock()` function must be used to generate the required object.
 #' @param ... Unused arguments, for future development.
 #'  
 #' @return Invisible, the function is called for it's side effects.
 #' @export
-verify_lock = function(lock, ...) {
+verify_lock = function(...) {
   
   # check verse is active
-  if (!exists("verse")) stop("Please activate verse")
+  if (!exists(".verse")) stop("Please activate verse")
   
   # check .libPaths are correct
-  if (!identical(.libPaths()[1], verse$lib_path)) .libPaths(c(verse$lib_path, .libPaths()))
+  if (!identical(.libPaths()[1], .verse$lib_path)) .libPaths(c(.verse$lib_path, .libPaths()))
+  
+  lock = ._read_lock()
   
   # check verse.lock and ensure all packages in project lib
-  ins_pac = as.data.frame(installed.packages(lib.loc = verse$verse_lib))$Package
+  ins_pac = as.data.frame(installed.packages(lib.loc = .verse$verse_lib))$Package
   
   # check presence and version of all packages in lock file
   for (pac in lock) {
