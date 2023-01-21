@@ -13,7 +13,10 @@ deactivate = function(...) {
   wd = getwd()
   
   ._check_verse(wd)
-    
+  
+  # remove verselib from library paths
+  .libPaths(.libPaths()[-1])
+  
   # rm .Rprofile
   unlink(".Rprofile")
   
