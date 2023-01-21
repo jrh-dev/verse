@@ -34,7 +34,7 @@
         package = pac,
         version = NULL,
         upgrade = FALSE,
-        dependencies = TRUE,
+        dependencies = FALSE,
         ...
       )
     }
