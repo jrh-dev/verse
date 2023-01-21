@@ -42,6 +42,8 @@ init = function(...) {
   # create .Rprofile & verse.lock file
   write("verse::activate()", ".Rprofile")
   
+  write("\n", "verse.lock", append=TRUE)
+  
   return(invisible())
 }
 

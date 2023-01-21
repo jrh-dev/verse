@@ -32,7 +32,7 @@ verse_install = function(
     package,
     version = NULL,
     upgrade = TRUE,
-    dependencies = TRUE,
+    dependencies = c("Depends", "Imports", "LinkingTo"),
     ...
     ) {
   

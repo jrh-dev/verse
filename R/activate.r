@@ -53,13 +53,15 @@ activate = function(...) {
   lock_state = ._read_lock()
   
   # check whether verse lib exists and restore or verify
-  if (any(grepl("verselib", list.dirs(wd, recursive = FALSE)))) {
+  if (dir.exists("verselib")) {
     verify_lock(lock_state)
   } else {
+    # create project library
+    dir.create(lib_path)
     restore_lock(lock_state)
   }
   
-  write("verse::activate()", ".Rprofile")
+  write("verse::activate()", ".Rprofile", append = FALSE)
   
   return(invisible())
 }

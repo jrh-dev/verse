@@ -33,8 +33,8 @@
       remotes::install_version(
         package = pac,
         version = NULL,
-        upgrade = FALSE,
-        dependencies = FALSE,
+        upgrade = TRUE,
+        dependencies = c("Depends", "Imports", "LinkingTo"),
         ...
       )
     }
