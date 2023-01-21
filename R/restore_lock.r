@@ -13,11 +13,13 @@
 #' @export
 restore_lock = function(...) {
   
-  # check verse is active
-  if (!exists(".verse")) stop("Verse does not appear to be active.")
+  wd = getwd()
   
-  # check .libPaths are correct
-  if (!identical(.libPaths()[1], .verse$lib_path)) .libPaths(c(.verse$lib_path, .libPaths()))
+  lib_path = file.path(wd, "verselib")
+  
+  ._check_verse(wd)
+  
+  on.exit(write_lock())
   
   lock = ._read_lock()
   
@@ -25,9 +27,13 @@ restore_lock = function(...) {
     remotes::install_version(
       package = lock[[x]][["package"]],
       version = lock[[x]][["version"]],
-      dependencies = unname(unlist(strsplit((lock[[1]][["dependencies"]]), " "))),
-      upgrade = lock[[x]][["upgrade"]]
+      upgrade = FALSE,
+      dependencies = TRUE
     )
   }
+  
+  # Check non base dependencies are in the verse library
+  ._verse_install_dep()
+  
   return(invisible())
 }

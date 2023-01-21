@@ -9,12 +9,11 @@
 #' @return Invisible, the function is called for it's side effects.
 #' @export
 deactivate = function(...) {
-  # check verse is active
-  if (!exists(".verse")) stop("Verse does not appear to be active.")
   
-  # check project lib is 1st in .libPaths and remove
-  if (identical(.libPaths()[1], .verse$project_lib)) .libPaths(.libPaths()[2:length(.libPaths())])
-
+  wd = getwd()
+  
+  ._check_verse(wd)
+    
   # rm .Rprofile
   unlink(".Rprofile")
   

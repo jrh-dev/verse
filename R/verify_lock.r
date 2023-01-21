@@ -16,46 +16,38 @@
 #' @export
 verify_lock = function(...) {
   
-  # check verse is active
-  if (!exists(".verse")) stop("Please activate verse")
+  wd = getwd()
   
-  # check .libPaths are correct
-  if (!identical(.libPaths()[1], .verse$lib_path)) .libPaths(c(.verse$lib_path, .libPaths()))
+  lib_path = file.path(wd, "verselib")
+  
+  ._check_verse(wd)
+  
+  on.exit(write_lock())
   
   lock = ._read_lock()
   
   # check verse.lock and ensure all packages in project lib
-  ins_pac = as.data.frame(utils::installed.packages(lib.loc = .verse$verse_lib))$Package
+  ins_pac = as.data.frame(utils::installed.packages(lib.loc = lib_path))$Package
   
   # check presence and version of all packages in lock file
   for (pac in lock) {
     tar_pac = pac["package"]
-    tar_ver = strsplit(pac["version"], " ")
-    
-    tar_met_crit_1 = tar_pac %in% ins_pac
-    
-    if (length(tar_ver$version) > 1) {
-      tar_met_crit_2 = switch(
-        tar_ver$version[1],
-        "<" = (utils::packageVersion(tar_pac, lib.loc = lib_path) < tar_ver$version[2]),
-        "<=" = (utils::packageVersion(tar_pac, lib.loc = lib_path) <= tar_ver$version[2]),
-        ">=" = (utils::packageVersion(tar_pac, lib.loc = lib_path) >= tar_ver$version[2]),
-        ">" = (utils::packageVersion(tar_pac, lib.loc = lib_path) > tar_ver$version[2]),
-        FALSE
-      )
-    } else {
-      tar_met_crit_2 = (utils::packageVersion(tar_pac, lib.loc = verse$lib_path) == tar_ver$version[1])
-    }
+    tar_ver = pac["version"]
+    tar_met = tar_pac %in% ins_pac && tar_ver == utils::packageVersion(tar_pac, lib.loc = lib_path)
     
     # if lock file conditions aren't fulfilled; install
-    if (!(tar_met_crit_1 && tar_met_crit_2)) {
-      verse_install(
+    if (!(tar_met)) {
+      remotes::install_version(
         package = pac["package"],
         version = pac["version"],
-        dependencies = pac["dependencies"],
-        upgrade = pac["upgrade"],
-        lock_version = FALSE)
+        upgrade = FALSE,
+        dependencies = TRUE
+      )
     }
   }
+  
+  # Check non base dependencies are in the verse library
+  ._verse_install_dep()
+  
   return(invisible())
 }

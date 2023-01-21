@@ -22,11 +22,7 @@ Initialization also activates verse. Once activated packages are
 installed in the project library using \code{verse::install()}.
 
 To help avoid unintended consequences verse cannot be initialized if
-the directory already contains a \code{.Rprofile}, \code{verse.lock} file, or a
-project library previously created by verse. If any of these are present
-they must be manually removed by the user before initialization.
-
-If the lock file is missing, but a project library exists and the user
-wants to keep the existing library, they can use \code{construct_lock()} to
-generate a new lock file then \code{activate()}, to activate verse.
+the directory already contains a \code{.Rprofile} or \code{verse.lock} file. If either
+of these are present they must be manually removed by the user before
+initialization.
 }

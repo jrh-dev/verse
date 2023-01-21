@@ -9,26 +9,23 @@
 #' @export
 write_lock = function(...) {
   
-  # check verse is active
-  if (!exists(".verse")) stop("Please activate verse")
+  wd = getwd()
   
-  # check .libPaths are correct
-  if (!identical(.libPaths()[1], .verse$lib_path)) .libPaths(c(.verse$lib_path, .libPaths()))
+  lib_path = file.path(wd, "verselib")
   
-  # back up lock file
-  .verse$previous_lock = ._read_lock()
+  ._check_verse(wd)
   
   # identify packages installed in the project library and dependencies
-  pac_in_lib = as.data.frame(utils::installed.packages(lib.loc = .verse$project_lib))
+  pac_in_lib = as.data.frame(utils::installed.packages(lib.loc = lib_path))
   
   if (nrow(pac_in_lib) > 0) {
+    
+    to_lock = vector("list", nrow(pac_in_lib))
     
     for (ii in seq_len(nrow(pac_in_lib))) {
       to_lock[[ii]] = c(
         pac_in_lib[["Package"]][ii],
-        pac_in_lib[["Version"]][ii],
-        NA,
-        "always"
+        pac_in_lib[["Version"]][ii]
       )
     }
     
@@ -37,19 +34,20 @@ write_lock = function(...) {
       glue::glue(
         "[[package]]\n",
         "package:{x[[1]]}\n",
-        "version:{x[[2]]}\n",
-        "dependencies:{x[[3]]}\n",
-        "upgrade:{x[[4]]}\n\n"
+        "version:{x[[2]]}\n"
       )
     })
     
-    # remove old lock file and write new one
-    unlink("verse.lock")
-    file.create("verse.lock")
+    lck = filelock::lock("verse.lock", timeout = 5000)
     
-    for (pac in locked) write(pac, "verse.lock", append=TRUE)
-   
+    on.exit(filelock::unlock(lck))
+    
+    write(locked[[1]], "verse.lock", append=FALSE)
+    
+    for (pac in locked[2:length(locked)]) write(pac, "verse.lock", append=TRUE)
+    
     write("\n", "verse.lock", append=TRUE)
+    
   }
   
   return(invisible())

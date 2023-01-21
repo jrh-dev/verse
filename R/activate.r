@@ -24,8 +24,11 @@ activate = function(...) {
   
   wd = getwd()
   
+  lib_path = file.path(wd, "verselib")
+  
   # check verse.lock exists
   if (!file.exists(file.path(wd, "verse.lock"))) {
+    
     # if it doesn't
     stop(
       glue::glue(
@@ -37,33 +40,23 @@ activate = function(...) {
     )
   }
   
-  # set project lib and create if missing
-  lib_path = file.path(wd, "verselib")
-  
-  # verse environment is used primarily to confirm activation by other functions
-  .verse = new.env(parent = globalenv())
-  assign("verse_lib", lib_path, envir = .verse)
-  
-  # create lib dir if it doesn't exist
-  if (!dir.exists(.verse$lib_path)) {
-    dir.create(.verse$lib_path)
-    restore = TRUE
+  # set verse lib as primary path if not already
+  if (!identical(.libPaths()[1], lib_path)) {
+    # add custom lib path in front of existing
+    .libPaths(c(lib_path, .libPaths()))
+    # confirm path set correctly
+    stopifnot("Unable to set project .libPaths" = identical(.libPaths()[1], lib_path))
+    
   }
   
-  # add custom lib path in front of existing
-  .libPaths(c(.verse$lib_path, .libPaths()))
-  
-  # confirm path set correctly
-  stopifnot("Unable to set project .libPaths" = identical(.libPaths()[1], .verse$lib_path))
- 
   # read lock file
   lock_state = ._read_lock()
   
-  # if lib dir was missing, restore the project lib, else verify state of lib
-  if (restore) {
-    restore_lock(lock_state)
+  # check whether verse lib exists and restore or verify
+  if (any(grepl("verselib", list.dirs(wd, recursive = FALSE)))) {
+    verify_lock(lock_state)
   } else {
-    verify_lock(lock_state)  
+    restore_lock(lock_state)
   }
   
   write("verse::activate()", ".Rprofile")

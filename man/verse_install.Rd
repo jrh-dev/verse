@@ -4,16 +4,24 @@
 \alias{verse_install}
 \title{Install a package from CRAN}
 \usage{
-verse_install(pac_name, vers = NULL, verse_dep = TRUE, ...)
+verse_install(
+  package,
+  version = NULL,
+  upgrade = TRUE,
+  dependencies = TRUE,
+  ...
+)
 }
 \arguments{
-\item{pac_name}{string, the name of a package to install.}
+\item{package}{string, the name of a package to install.}
 
-\item{vers}{string, specifying the version of the package to install.}
+\item{version}{string, specifying the version of the package to install.}
 
-\item{verse_dep}{logical, default \code{TRUE} value checks the dependencies of the
-installed package are installed in the project library. Base packages are
-never included in the project library.}
+\item{upgrade}{logical, default \code{TRUE} upgrades dependencies of the specified
+package where a version of the dependency is already installed.}
+
+\item{dependencies}{logical, default \code{TRUE} installs dependencies of the
+specified package.}
 
 \item{...}{Arguments to be passed on to \code{\link[remotes:install_version]{remotes::install_version()}}}
 }

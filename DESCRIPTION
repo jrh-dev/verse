@@ -10,4 +10,5 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.1
 Imports:
     glue,
-    remotes
+    remotes,
+    filelock

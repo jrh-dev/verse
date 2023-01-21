@@ -8,13 +8,9 @@
 #'  installed in the project library using `verse::install()`.
 #' 
 #'  To help avoid unintended consequences verse cannot be initialized if
-#'  the directory already contains a `.Rprofile`, `verse.lock` file, or a 
-#'  project library previously created by verse. If any of these are present
-#'  they must be manually removed by the user before initialization.
-#'  
-#'  If the lock file is missing, but a project library exists and the user
-#'  wants to keep the existing library, they can use `construct_lock()` to
-#'  generate a new lock file then `activate()`, to activate verse.
+#'  the directory already contains a `.Rprofile` or `verse.lock` file. If either
+#'  of these are present they must be manually removed by the user before
+#'  initialization.
 #'  
 #' @param ... Unused arguments, for future development.
 #'  
@@ -48,39 +44,26 @@ init = function(...) {
     ))
   }
   
-  # check if project library exists
-  if (dir.exists(file.path(wd, "lib"))) {
-    stop(glue::glue(
-      "\'Lib directory\' found in working directory.\n\n",
-      "Current working directory;\n\n",
-      "{getwd()}\n\n",
-      "To initialise verse here please remove the\n",
-      "\'Lib directory\' file. verse creates a custom\n",
-      "\'Lib directory\' when initialized."
-    ))
-  }
-
   message(glue::glue("Initializing verse project in directory; `{wd}`"))
   
   # set project lib, create it if missing
   lib_path = file.path(wd, "verselib")
   
-  # verse environment is used primarily to confirm activation by other functions
-  .verse = new.env(parent = globalenv())
-  assign("verse_lib", lib_path, envir = .verse)
-  
   # create project library
-  dir.create(.verse$lib_path)
+  if (!dir.exists(file.path(wd, "verselib"))) dir.create(lib_path)
   
   # add custom libpath in front of existing
-  .libPaths(c(.verse$lib_path, .libPaths()))
+  .libPaths(c(lib_path, .libPaths()))
   
   # confirm path set ok
-  stopifnot("Unable to set project lib" = identical(.libPaths()[1], .verse$lib_path))
+  stopifnot("Unable to set project lib" = identical(.libPaths()[1], lib_path))
+  
+  on.exit(write_lock())
   
   # create .Rprofile & verse.lock file
   write("verse::activate()", ".Rprofile")
-  write("/n", "verse.lock")
+  
+  write("\n", "verse.lock", append=FALSE)
   
   return(invisible())
 }
