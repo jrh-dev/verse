@@ -20,29 +20,8 @@ init = function(...) {
   
   wd = getwd()
   
-  # check if verse.lock exists
-  if (file.exists(file.path(wd, "verse.lock"))) {
-    stop(glue::glue(
-      "\'verse.lock\' file found in working directory.\n\n",
-      "Current working directory;\n\n",
-      "{getwd()}\n\n",
-      "To activate verse use verse::activate().\n\n",
-      "To initialise verse here please remove the\n",
-      "\'verse.lock\' file."
-    ))
-  }
-  
-  # check if .Rprofile exists
-  if (file.exists(file.path(wd, ".Rprofile"))) {
-    stop(glue::glue(
-      "\'.Rprofile\' file found in working directory.\n\n",
-      "Current working directory;\n\n",
-      "{getwd()}\n\n",
-      "To initialise verse here please remove the\n",
-      "\'.Rprofile\' file. verse creates a custom\n",
-      "\'.Rprofile\' when initialized."
-    ))
-  }
+  # is it safe to initiate?
+  ._safe_init(wd)
   
   message(glue::glue("Initializing verse project in directory; `{wd}`"))
   
@@ -50,7 +29,7 @@ init = function(...) {
   lib_path = file.path(wd, "verselib")
   
   # create project library
-  if (!dir.exists(file.path(wd, "verselib"))) dir.create(lib_path)
+  dir.create(lib_path)
   
   # add custom libpath in front of existing
   .libPaths(c(lib_path, .libPaths()))
@@ -63,7 +42,43 @@ init = function(...) {
   # create .Rprofile & verse.lock file
   write("verse::activate()", ".Rprofile")
   
-  write("\n", "verse.lock", append=FALSE)
+  return(invisible())
+}
+
+._safe_init = function(dir) {
+  # check if verse.lock exists
+  if (file.exists(file.path(dir, "verse.lock"))) {
+    stop(glue::glue(
+      "\'verse.lock\' file found in working directory.\n\n",
+      "Current working directory;\n\n",
+      "{getwd()}\n\n",
+      "To activate verse use verse::activate().\n\n",
+      "To initialise verse here please remove the\n",
+      "\'verse.lock\' file."
+    ))
+  }
   
+  # check if .Rprofile exists
+  if (file.exists(file.path(dir, ".Rprofile"))) {
+    stop(glue::glue(
+      "\'.Rprofile\' file found in working directory.\n\n",
+      "Current working directory;\n\n",
+      "{getwd()}\n\n",
+      "To initialise verse here please remove the\n",
+      "\'.Rprofile\' file. verse creates a custom\n",
+      "\'.Rprofile\' when initialized."
+    ))
+  }
+  
+  # check if verselib exists
+  if (dir.exists(file.path(dir, "verselib"))) {
+    stop(glue::glue(
+      "\'verselib\' directory found in working directory.\n\n",
+      "Current working directory;\n\n",
+      "{getwd()}\n\n",
+      "To initialise verse here please remove the\n",
+      "\'verselib\'."
+    ))
+  }
   return(invisible())
 }
